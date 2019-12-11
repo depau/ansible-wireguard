@@ -1,0 +1,38 @@
+{{ ansible_managed | comment }}
+
+[NetDev]
+Name = {{ wg_iface_name }}
+Kind = wireguard
+Description = WireGuard private network
+
+{% set curhostvars = hostvars[inventory_hostname] -%}
+
+[WireGuard]
+PrivateKey = {{ curhostvars['wg']['privkey'] }}
+{% if curhostvars['wg'].get('endpoint_port', None) %}
+ListenPort = {{ curhostvars['wg']['endpoint_port'] }}
+{% endif %}
+
+{% for host in groups['all'] -%}
+{% set hvars = hostvars[host] -%}
+{% if curhostvars['headless'] or not curhostvars['headless'] and hvars['headless'] -%}
+
+# {{ host }}
+[WireGuardPeer]
+PublicKey = {{ hvars['wg']['pubkey'] }}
+AllowedIPs = {% include 'allowed_ips.j2' %}
+{% if hvars['wg'].get('endpoint_port', None) %}
+{% if curhostvars['has_output_ip6'] and hvars.get('public_ip6', None) %}
+Endpoint = [{{ hvars['public_ip6'] }}]:{{ hvars['wg']['endpoint_port'] }}
+{% elif hvars.get('public_ip4', None) %}
+Endpoint = {{ hvars['public_ip4'] }}:{{ hvars['wg']['endpoint_port'] }}
+{% endif %}
+{% endif %}
+{% if curhostvars['wg'].get('keepalive', None) %}
+PersistentKeepalive = {{ curhostvars['wg']['keepalive'] }}
+{% elif hvars['wg'].get('keepalive', None) %}
+PersistentKeepalive = {{ hvars['wg']['keepalive'] }}
+{% endif %}
+{% endif %}
+
+{% endfor %}

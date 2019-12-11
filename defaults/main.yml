@@ -1,0 +1,6 @@
+---
+with_sysd_netd: false
+with_wgquick: false
+ip4_subnet: '/24'
+ip6_subnet: '/48'
+wg_iface_name: 'wgpriv'

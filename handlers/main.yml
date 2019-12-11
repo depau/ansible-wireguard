@@ -1,0 +1,15 @@
+- name: Restart systemd-networkd
+  when: headless
+  systemd:
+    name: systemd-networkd.service
+    scope: system
+    state: restarted
+
+- name: "Enable and restart wg-quick@{{ wg_iface_name }}.service"
+  when: headless
+  systemd:
+    name: "wg-quick@{{ wg_iface_name }}.service"
+    enabled: yes
+    scope: system
+    state: restarted
+

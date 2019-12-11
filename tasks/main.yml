@@ -1,0 +1,92 @@
+---
+- name: Install WireGuard netdev for systemd-networkd
+  when: with_sysd_netd
+  notify: Restart systemd-networkd
+  template:
+    src: systemd-networkd.netdev.j2
+    dest: "/etc/systemd/network/{{ wg_iface_name }}.netdev"
+    lstrip_blocks: yes
+    owner: systemd-network
+    group: systemd-network
+    mode: 0600
+
+- name: Install WireGuard network for systemd-networkd
+  when: with_sysd_netd
+  notify: Restart systemd-networkd
+  template:
+    src: systemd-networkd.network.j2
+    dest: "/etc/systemd/network/{{ wg_iface_name }}.network"
+    lstrip_blocks: yes
+    owner: systemd-network
+    group: systemd-network
+    mode: 0600
+
+- name: Install WireGuard configs for wg-quick
+  when: with_wgquick
+  notify: "Enable and restart wg-quick@{{ wg_iface_name }}.service"
+  template:
+    src: wg-quick.conf.j2
+    dest: "/etc/wireguard/{{ wg_iface_name }}.conf"
+    lstrip_blocks: yes
+    owner: root
+    group: root
+    mode: 0600
+
+- name: Allow WireGuard in firewall
+  when: wg.get('endpoint_port', None)
+  ufw:
+    rule: allow
+    proto: udp
+    port: "{{ wg['endpoint_port'] }}"
+
+- name: Enable IPv4 forwarding
+  when: is_wg_router or is_gateway_ip4
+  sysctl:
+    name: net.ipv4.ip_forward
+    value: '1'
+    sysctl_set: yes
+    state: present
+    reload: yes
+
+- name: Enable IPv6 forwarding (default)
+  when: is_wg_router or is_gateway_ip6
+  sysctl:
+    name: net.ipv6.conf.default.forwarding
+    value: '1'
+    sysctl_set: yes
+    state: present
+    reload: yes
+
+- name: Enable IPv6 forwarding (all)
+  when: is_wg_router or is_gateway_ip6
+  sysctl:
+    name: net.ipv6.conf.all.forwarding
+    value: '1'
+    sysctl_set: yes
+    state: present
+    reload: yes
+
+#- name: Enable wg<->wg forwarding
+#  when: is_wg_router
+#  ufw:
+#    rule: allow
+#    route: yes
+#    from: "{{ wg_iface_name }}"
+#    to: "{{ wg_iface_name }}"
+#
+#- name: Enable wg->internet forwarding
+#  when: is_gateway_ip4 or is_gateway_ip6
+#  ufw:
+#    rule: allow
+#    route: yes
+#    from: "{{ wg_iface_name }}"
+#    to: "{{ ansible_facts['default_ipv4']['interface'] }}"
+#
+#- name: Enable wg<-internet forwarding
+#  when: is_gateway_ip4 or is_gateway_ip6
+#  ufw:
+#    rule: allow
+#    route: yes
+#    from: "{{ ansible_facts['default_ipv4']['interface'] }}"
+#    to: "{{ wg_iface_name }}"
+
