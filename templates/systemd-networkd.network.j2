@@ -5,6 +5,12 @@ Name = {{ wg_iface_name }}
 
 {% set curhostvars = hostvars[inventory_hostname] -%}
 
+{% if curhostvars['has_output_ip6'] %}
+# Work around WireGuard not taking the IPv6 header into account
+[Link]
+MTUBytes = 1380
+{% endif %}
+
 [Network]
 Address = {{ curhostvars['wg']['ip4'] }}{{ ip4_subnet }}
 Address = {{ curhostvars['wg']['ip6'] }}{{ ip6_subnet }}
