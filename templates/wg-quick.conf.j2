@@ -6,8 +6,8 @@
 Address = {{ curhostvars['wg']['ip4'] }}{{ ip4_subnet }}, {{ curhostvars['wg']['ip6'] }}{{ ip6_subnet }}
 DNS = 1.1.1.1
 PrivateKey = {{ curhostvars['wg']['privkey'] }}
-{% if curhostvars.get('wg_endpoint_port', None) %}
-ListenPort = {{ curhostvars['wg_endpoint_port'] }}
+{% if curhostvars['wg'].get('endpoint_port', None) %}
+ListenPort = {{ curhostvars['wg']['endpoint_port'] }}
 {% endif %}
 
 {% for host in groups['all'] %}
