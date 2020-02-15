@@ -8,7 +8,7 @@ Name = {{ wg_iface_name }}
 {% if curhostvars['has_output_ip6'] %}
 # Work around WireGuard not taking the IPv6 header into account
 [Link]
-MTUBytes = 1380
+MTUBytes = 1300
 {% endif %}
 
 [Network]

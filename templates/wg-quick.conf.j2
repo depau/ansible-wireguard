@@ -11,7 +11,7 @@ ListenPort = {{ curhostvars['wg']['endpoint_port'] }}
 {% endif %}
 {% if curhostvars['has_output_ip6'] %}
 # Work around WireGuard not taking the IPv6 header into account
-MTU = 1380
+MTU = 1300
 {% endif %}
 
 {% for host in groups['all'] %}
