@@ -1,38 +1,48 @@
 {{ ansible_managed | comment }}
 
-{% set curhostvars = hostvars[inventory_hostname] -%}
+{% set localhost = hostvars[inventory_hostname] -%}
 
 [Interface]
-Address = {{ curhostvars['wg']['ip4'] }}{{ ip4_subnet }}, {{ curhostvars['wg']['ip6'] }}{{ ip6_subnet }}
+Address = {{ localhost['wg']['ip4'] }}{{ ip4_subnet }}, {{ localhost['wg']['ip6'] }}{{ ip6_subnet }}
 DNS = 1.1.1.1
-PrivateKey = {{ curhostvars['wg']['privkey'] }}
-{% if curhostvars['wg'].get('endpoint_port', None) %}
-ListenPort = {{ curhostvars['wg']['endpoint_port'] }}
+PrivateKey = {{ localhost['wg']['privkey'] }}
+{% if localhost['wg'].get('endpoint_port', None) %}
+ListenPort = {{ localhost['wg']['endpoint_port'] }}
 {% endif %}
-{% if curhostvars['has_output_ip6'] %}
 # Work around WireGuard not taking the IPv6 header into account
 MTU = 1300
-{% endif %}
 
 {% for host in groups['all'] %}
-{% set hvars = hostvars[host] -%}
-{% if curhostvars['headless'] or not curhostvars['headless'] and hvars['headless'] -%}
+{% set remotehost = hostvars[host] -%}
+{# Ensure hosts with dynamic IPs don't list each other in their configs #}
+{% if localhost['headless'] or not localhost['headless'] and remotehost['headless'] %}
+{# Ensure hosts with no IPv6 connectivity don't list IPv6-only hosts at all #}
+{%
+  if remotehost['headless'] and (
+    localhost.get('has_output_ip4', False) and remotehost.get('public_ip4', None) or 
+    localhost.get('has_output_ip6', False) and remotehost.get('public_ip6', None)
+  ) or localhost['headless'] and (
+    localhost.get('public_ip4', None) and remotehost.get('has_output_ip4', False) or 
+    localhost.get('public_ip6', None) and remotehost.get('has_output_ip6', False)
+  )
+-%}
 
 # {{ host }}
 [Peer]
-PublicKey = {{ hvars['wg']['pubkey'] }}
+PublicKey = {{ remotehost['wg']['pubkey'] }}
 AllowedIPs = {% include 'allowed_ips.j2' %}
-{% if hvars['wg'].get('endpoint_port', None) %}
-{% if curhostvars['has_output_ip6'] and hvars.get('public_ip6', None) %}
-Endpoint = [{{ hvars['public_ip6'] }}]:{{ hvars['wg']['endpoint_port'] }}
-{% elif hvars.get('public_ip4', None) %}
-Endpoint = {{ hvars['public_ip4'] }}:{{ hvars['wg']['endpoint_port'] }}
+{% if remotehost['wg'].get('endpoint_port', None) %}
+{% if localhost['has_output_ip6'] and remotehost.get('public_ip6', None) %}
+Endpoint = [{{ remotehost['public_ip6'] }}]:{{ remotehost['wg']['endpoint_port'] }}
+{% elif remotehost.get('public_ip4', None) %}
+Endpoint = {{ remotehost['public_ip4'] }}:{{ remotehost['wg']['endpoint_port'] }}
 {% endif %}
 {% endif %}
-{% if curhostvars['wg'].get('keepalive', None) %}
-PersistentKeepalive = {{ curhostvars['wg']['keepalive'] }}
-{% elif hvars['wg'].get('keepalive', None) %}
-PersistentKeepalive = {{ hvars['wg']['keepalive'] }}
+{% if localhost['wg'].get('keepalive', None) %}
+PersistentKeepalive = {{ localhost['wg']['keepalive'] }}
+{% elif remotehost['wg'].get('keepalive', None) %}
+PersistentKeepalive = {{ remotehost['wg']['keepalive'] }}
+{% endif %}
 {% endif %}
 {% endif %}
 
