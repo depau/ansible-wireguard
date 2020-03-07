@@ -14,7 +14,7 @@ ListenPort = {{ localhost['wg']['endpoint_port'] }}
 {% endif %}
 
 {% for host in groups['all'] -%}
-{% set remotehost = hostvars[host] -%}
+{% set remotehost = hostvars[host] %}
 {% if host != inventory_hostname %}
 {# Ensure hosts with dynamic IPs don't list each other in their configs #}
 {% if localhost['headless'] or not localhost['headless'] and remotehost['headless'] %}
@@ -27,7 +27,7 @@ ListenPort = {{ localhost['wg']['endpoint_port'] }}
     localhost.get('public_ip4', None) and remotehost.get('has_output_ip4', False) or 
     localhost.get('public_ip6', None) and remotehost.get('has_output_ip6', False)
   )
--%}
+%}
 
 # {{ host }}
 [WireGuardPeer]
@@ -47,6 +47,5 @@ PersistentKeepalive = {{ remotehost['wg']['keepalive'] }}
 {% endif %}
 {% endif %}
 {% endif %}
-
 {% endif %}
 {% endfor %}

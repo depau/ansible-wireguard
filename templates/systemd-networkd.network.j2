@@ -5,25 +5,29 @@ Name = {{ wg_iface_name }}
 
 {% set curhostvars = hostvars[inventory_hostname] -%}
 
-# Work around WireGuard not taking the IPv6 header into account
 [Link]
+# Work around WireGuard not taking the IPv6 header into account
 MTUBytes = 1300
 
 [Network]
 Address = {{ curhostvars['wg']['ip4'] }}{{ ip4_subnet }}
 Address = {{ curhostvars['wg']['ip6'] }}{{ ip6_subnet }}
 
+
+# WireGuard routes
+
 {% for host in groups['all'] %}
 {% set hvars = hostvars[host] -%}
 
-# {{ host }} (IPv4)
+### {{ host }}
+# IPv4
 [Route]
 {% if hvars['is_gateway_ip4'] and curhostvars['wg'].get('gateway_ip4', None) == host %}
 Gateway = {{ hvars['wg']['ip4'] }}
 {% else %}
 Destination = {{ hvars['wg']['ip4'] }}
 {% endif %}
-# {{ host }} (IPv6)
+# IPv6
 [Route]
 {% if hvars['is_gateway_ip6'] and curhostvars['wg'].get('gateway_ip6', None) == host %}
 Gateway = {{ hvars['wg']['ip6'] }}

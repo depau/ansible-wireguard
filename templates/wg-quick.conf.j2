@@ -13,7 +13,7 @@ ListenPort = {{ localhost['wg']['endpoint_port'] }}
 MTU = 1300
 
 {% for host in groups['all'] %}
-{% set remotehost = hostvars[host] -%}
+{% set remotehost = hostvars[host] %}
 {% if host != inventory_hostname %}
 {# Ensure hosts with dynamic IPs don't list each other in their configs #}
 {% if localhost['headless'] or not localhost['headless'] and remotehost['headless'] %}
@@ -26,7 +26,7 @@ MTU = 1300
     localhost.get('public_ip4', None) and remotehost.get('has_output_ip4', False) or 
     localhost.get('public_ip6', None) and remotehost.get('has_output_ip6', False)
   )
--%}
+%}
 
 # {{ host }}
 [Peer]
@@ -39,13 +39,14 @@ Endpoint = [{{ remotehost['public_ip6'] }}]:{{ remotehost['wg']['endpoint_port']
 Endpoint = {{ remotehost['public_ip4'] }}:{{ remotehost['wg']['endpoint_port'] }}
 {% endif %}
 {% endif %}
-{% if localhost['wg'].get('keepalive', None) %}
+{%- if localhost['wg'].get('keepalive', None) %}
 PersistentKeepalive = {{ localhost['wg']['keepalive'] }}
 {% elif remotehost['wg'].get('keepalive', None) %}
 PersistentKeepalive = {{ remotehost['wg']['keepalive'] }}
-{% endif %}
-{% endif %}
-{% endif %}
-{% endif %}
 
+{% endif %}
+{% endif %}
+{% endif %}
+{% endif %}
 {% endfor %}
+
