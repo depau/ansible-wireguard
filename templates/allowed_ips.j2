@@ -1,6 +1,6 @@
 {% set allowedips = [remotehost['wg']['ip4'] + '/32', remotehost['wg']['ip6'] + '/128'] %}
 {% if remotehost['is_wg_router'] %}
-  {% set bogus = allowedips.extend(['10.0.69.0' + ip4_subnet, 'fd00:bad::0' + ip6_subnet]) %}
+  {% set bogus = allowedips.extend(['10.69.0.0' + ip4_subnet, 'fd00:bad::0' + ip6_subnet]) %}
 {% endif %}
 {% if remotehost['is_gateway_ip4'] and localhost['wg'].get('gateway_ip4', None) == host %}
   {% set bogus = allowedips.append('0.0.0.0/0') %}
