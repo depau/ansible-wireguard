@@ -49,3 +49,21 @@ PersistentKeepalive = {{ remotehost['wg']['keepalive'] }}
 {% endif %}
 {% endif %}
 {% endfor %}
+
+{% if localhost['wg'].get('additional_peers', None) %}
+## Additional peers
+{% for name, peer in localhost['wg']['additional_peers'].items() %}
+# {{ name }}
+[WireGuardPeer]
+PublicKey = {{ peer['pubkey'] }}
+AllowedIPs = {{ peer['allowed_ips'] }}
+{% if peer.get('endpoint', None) %}
+Endpoint = {{ peer['endpoint'] }}
+{% endif %}
+{% if localhost['wg'].get('keepalive', None) %}
+PersistentKeepalive = {{ localhost['wg']['keepalive'] }}
+{% elif peer.get('keepalive', None) %}
+PersistentKeepalive = {{ peer['keepalive'] }}
+{% endif %}
+{% endfor %}
+{% endif %}

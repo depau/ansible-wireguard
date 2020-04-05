@@ -3,36 +3,48 @@
 [Match]
 Name = {{ wg_iface_name }}
 
-{% set curhostvars = hostvars[inventory_hostname] -%}
+{% set localhost = hostvars[inventory_hostname] -%}
 
 [Link]
 # Work around WireGuard not taking the IPv6 header into account
 MTUBytes = 1300
 
 [Network]
-Address = {{ curhostvars['wg']['ip4'] }}{{ ip4_subnet }}
-Address = {{ curhostvars['wg']['ip6'] }}{{ ip6_subnet }}
+Address = {{ localhost['wg']['ip4'] }}{{ ip4_subnet }}
+Address = {{ localhost['wg']['ip6'] }}{{ ip6_subnet }}
 
 
 # WireGuard routes
 
 {% for host in groups['all'] %}
-{% set hvars = hostvars[host] -%}
+{% set remotehost = hostvars[host] -%}
 
 ### {{ host }}
 # IPv4
 [Route]
-{% if hvars['is_gateway_ip4'] and curhostvars['wg'].get('gateway_ip4', None) == host %}
-Gateway = {{ hvars['wg']['ip4'] }}
+{% if remotehost['is_gateway_ip4'] and localhost['wg'].get('gateway_ip4', None) == host %}
+Gateway = {{ remotehost['wg']['ip4'] }}
 {% else %}
-Destination = {{ hvars['wg']['ip4'] }}
+Destination = {{ remotehost['wg']['ip4'] }}
 {% endif %}
 # IPv6
 [Route]
-{% if hvars['is_gateway_ip6'] and curhostvars['wg'].get('gateway_ip6', None) == host %}
-Gateway = {{ hvars['wg']['ip6'] }}
+{% if remotehost['is_gateway_ip6'] and localhost['wg'].get('gateway_ip6', None) == host %}
+Gateway = {{ remotehost['wg']['ip6'] }}
 {% else %}
-Destination = {{ hvars['wg']['ip6'] }}
+Destination = {{ remotehost['wg']['ip6'] }}
 {% endif %}
 
 {% endfor %}
+
+{% if localhost['wg'].get('additional_peers', None) %}
+## Additional peers
+{% for name, peer in localhost['wg']['additional_peers'].items() %}
+### {{ name }}
+{% for ip in peer['allowed_ips'].replace(' ', '').split(',') %}
+[Route]
+Destination = {{ ip }}
+
+{% endfor %}
+{% endfor %}
+{% endif %}
