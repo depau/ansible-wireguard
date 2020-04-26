@@ -4,3 +4,5 @@ with_wgquick: false
 ip4_subnet: '/16'
 ip6_subnet: '/48'
 wg_iface_name: 'wgpriv'
+wg_network_ip4: '10.0.0.0'
+wg_network_ip6: 'fd00::'
