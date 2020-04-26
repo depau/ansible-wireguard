@@ -1,8 +1,14 @@
 ---
 with_sysd_netd: false
 with_wgquick: false
+with_ufw: false
 ip4_subnet: '/16'
 ip6_subnet: '/48'
 wg_iface_name: 'wgpriv'
 wg_network_ip4: '10.0.0.0'
 wg_network_ip6: 'fd00::'
+wg_iface_desc: 'WireGuard private network'
+wg_dns: null
+
+# Work around WireGuard not taking the IPv6 header into account
+wg_mtu: 1300

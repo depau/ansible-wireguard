@@ -34,6 +34,7 @@
 
 - name: Allow WireGuard in firewall
   when: wg.get('endpoint_port', None)
+  when: with_ufw
   ufw:
     rule: allow
     proto: udp
@@ -66,27 +67,27 @@
     state: present
     reload: yes
 
-#- name: Enable wg<->wg forwarding
-#  when: is_wg_router
-#  ufw:
-#    rule: allow
-#    route: yes
-#    from: "{{ wg_iface_name }}"
-#    to: "{{ wg_iface_name }}"
-#
-#- name: Enable wg->internet forwarding
-#  when: is_gateway_ip4 or is_gateway_ip6
-#  ufw:
-#    rule: allow
-#    route: yes
-#    from: "{{ wg_iface_name }}"
-#    to: "{{ ansible_facts['default_ipv4']['interface'] }}"
-#
-#- name: Enable wg<-internet forwarding
-#  when: is_gateway_ip4 or is_gateway_ip6
-#  ufw:
-#    rule: allow
-#    route: yes
-#    from: "{{ ansible_facts['default_ipv4']['interface'] }}"
-#    to: "{{ wg_iface_name }}"
+- name: Enable wg<->wg forwarding
+  when: with_ufw and is_wg_router
+  ufw:
+    rule: allow
+    route: yes
+    from: "{{ wg_iface_name }}"
+    to: "{{ wg_iface_name }}"
+
+- name: Enable wg->internet forwarding
+  when: with_ufw and (is_gateway_ip4 or is_gateway_ip6)
+  ufw:
+    rule: allow
+    route: yes
+    from: "{{ wg_iface_name }}"
+    to: "{{ ansible_facts['default_ipv4']['interface'] }}"
+
+- name: Enable wg<-internet forwarding
+  when: with_ufw and (is_gateway_ip4 or is_gateway_ip6)
+  ufw:
+    rule: allow
+    route: yes
+    from: "{{ ansible_facts['default_ipv4']['interface'] }}"
+    to: "{{ wg_iface_name }}"
 

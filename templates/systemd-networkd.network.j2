@@ -6,13 +6,14 @@ Name = {{ wg_iface_name }}
 {% set localhost = hostvars[inventory_hostname] -%}
 
 [Link]
-# Work around WireGuard not taking the IPv6 header into account
-MTUBytes = 1300
+MTUBytes = {{ wg_mtu }}
 
 [Network]
 Address = {{ localhost['wg']['ip4'] }}{{ ip4_subnet }}
 Address = {{ localhost['wg']['ip6'] }}{{ ip6_subnet }}
-
+{% if wg_dns %}
+DNS = {{ wg_dns }}
+{% endif %}
 
 # WireGuard routes
 

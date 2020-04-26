@@ -3,7 +3,7 @@
 [NetDev]
 Name = {{ wg_iface_name }}
 Kind = wireguard
-Description = WireGuard private network
+Description = {{ wg_iface_desc }}
 
 {% set localhost = hostvars[inventory_hostname] -%}
 
