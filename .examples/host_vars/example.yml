@@ -1,0 +1,83 @@
+########
+### Machine specific options
+
+# Machine public IPv4 address, if available
+public_ip4: "12.34.56.78"
+
+# Machine public IPv6 address, if available
+public_ip6: "2001:dead:beef:1337:101::1"
+
+# Whether this machine can be used as a gateway to the Internet.
+# This requires extra configuration to enable packet forwarding, unless UFW is
+# used. It can be true only for one machine.
+is_gateway_ip4: true
+is_gateway_ip6: true
+
+# Whether this machine can be used as a router to route WireGuard packets
+# between machines that have no public addresses. It must be true for exactly
+# one machine
+is_wg_router: true
+
+
+########
+### Most of the following options can be moved to the playbook or defined in the
+### inventory if you want to set the same value for multiple machines.
+
+# Whether the machine is headless. Headless machines are expected to be always
+# on and always reachable for at least one protocol suite (IPv4/IPv6).
+# "Not headless" machines are not expected to be available. They will be set up
+# to never communicate directly but to always go through the wg router node.
+headless: true
+
+# Whether this machine has connectivity for each protocol suite. For example
+# set `has_output_ip6` to false if it has no IPv6 connectivity. It is
+# advisable to set IPv6 to false on portable devices since not all Wi-Fi or
+# mobile networks have IPv6 connectivity, so that it is never expected by the
+# other nodes.
+has_output_ip4: true
+has_output_ip6: true
+
+# WireGuard configuration file type (wg-quick or systemd-networkd). Exactly one
+# of them must be true but not both.
+with_sysd_netd: false
+with_wgquick: false
+
+# Basic UFW setup for packet forwarding and port opening is implemented. Set to
+# true to enable it. If you don't use it, set it to false and make sure you set
+# up your firewall in some other way. Or even better, contribute to this role
+# and add other firewall engines :)
+with_ufw: false
+
+# DNS for the interface. Default is null which doesn't set any, replace with a
+# string to set it. An implementation of resolvconf is required is wg-quick is
+# used (openresolv or systemd-resolved both work).
+#wg_dns: '1.1.1.1'
+
+
+########
+### Other configuration that is machine and WireGuard specific
+wg:
+  # IP addresses for the WireGuard interface. Global network address must also
+  # be set up accordingly.
+  ip4: "10.1.0.1"
+  ip6: "fd00:1337::1"
+
+  # Endpoint port (UDP) for WireGuard, required if the machine is headless.
+  #endpoint_port: 1194
+
+  # Private and public keys. It is advisable to keep at least the private key
+  # in an Ansible vault.
+  privkey: "{{ wg_privkeys['doge'] }}"
+  pubkey: "c3VjaCBwdWJsaWMga2V5LCB2ZXJ5IHdpcmVndWFyZAo="
+
+  # In case this machine is a WireGuard router it might be useful to add some
+  # WireGuard peers here that are not configured with Ansible, such as
+  # Android phones, Windows machines or OpenWRT routers. This will ensure
+  # they are reachable by passing through the router.
+  additional_peers:
+    openwrt_router:
+      allowed_ips: 10.1.1.0/24, fd00:1337::1:0/112
+      pubkey: "ZG9nZSBkcnVuayBiY2F1c2Ugb3dydCBjb2NrdGFpbAo="
+      # Optional, if you set it make sure the WG router can reach it
+      endpoint: "[2001:2912:392::123]:1194"
+

@@ -1,0 +1,38 @@
+---
+- hosts: all
+  #remote_user: whatever
+  #become_user: root
+  #become: yes
+
+  roles:
+    - 'roles/wireguard'
+      ########
+      ### Global vars, apply to all hosts. All options below list the default
+      ### values, so they can be omitted if you're not changing them.
+
+      # Network prefix lengths for both protocol suites.
+      ip4_subnet: '/16'
+      ip6_subnet: '/48'
+
+      # WireGuard interface name
+      wg_iface_name: 'wgpriv'
+
+      # Network prefixes for both protocol suites.
+      wg_network_ip4: '10.0.0.0'
+      wg_network_ip6: 'fd00::'
+
+      # WireGuard interface description, only used for the systemd-networkd
+      # unit
+      wg_iface_desc: 'WireGuard private network'
+
+      # DNS server for the WireGuard interfaces. Set it here to set it for all
+      # hosts, you can override it in the host vars.
+      wg_dns: null
+
+      # WireGuard interface MTU. Default is a magic "safe" low value that seems
+      # to always work. WireGuard by default calculates it, but it happens that
+      # the default value might cause issue when sending wg packets over IPv6
+      # and the encrypted packet also contains an IPv6 packet. It took me a few
+      # hours to troubleshoot and this works around it, please let me know if
+      # you know what exactly causes the issue cause I'd like to know too.
+      wg_mtu: 1300

@@ -1,0 +1,8 @@
+---
+# Sample Ansible vault. Of course you need to encrypt this, this is just an
+# example.
+
+wg_privkeys:
+  doge: 'c3VjaCBwcml2YXRla2V5LCB2ZXJ5IHdpcmVndWFyZAo='
+  taco: 'dGFjb2NhdGFjb2NhdGFjb2NhdGFjb2NhdGFjb2NhdAo='
+  enchilada: 'b2theSBJJ20gb3V0IG9mIGlkZWFzLGJsYWJsYWJsYQo='
