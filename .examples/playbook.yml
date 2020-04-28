@@ -5,7 +5,7 @@
   #become: yes
 
   roles:
-    - 'roles/wireguard'
+    - role: 'roles/wireguard'
       ########
       ### Global vars, apply to all hosts. All options below list the default
       ### values, so they can be omitted if you're not changing them.
