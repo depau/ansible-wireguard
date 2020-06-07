@@ -33,8 +33,7 @@
     mode: 0600
 
 - name: Allow WireGuard in firewall
-  when: wg.get('endpoint_port', None)
-  when: with_ufw
+  when: wg.get('endpoint_port', None) and with_ufw
   ufw:
     rule: allow
     proto: udp
