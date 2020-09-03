@@ -32,13 +32,6 @@
     group: root
     mode: 0600
 
-- name: Allow WireGuard in firewall
-  when: wg.get('endpoint_port', None) and with_ufw
-  ufw:
-    rule: allow
-    proto: udp
-    port: "{{ wg['endpoint_port'] }}"
-
 - name: Enable/disable IPv4 forwarding
   sysctl:
     name: net.ipv4.ip_forward
@@ -62,28 +55,4 @@
     sysctl_set: yes
     state: present
     reload: yes
-
-- name: Enable/disable wg<->wg forwarding
-  when: with_ufw
-  ufw:
-    rule: '{{ "allow" if is_wg_router else "deny" }}'
-    route: yes
-    from: "{{ wg_iface_name }}"
-    to: "{{ wg_iface_name }}"
-
-- name: Enable/disable wg->internet forwarding
-  when: with_ufw 
-  ufw:
-    rule: '{{ "allow" if is_gateway_ip4 or is_gateway_ip6 else "deny" }}'
-    route: yes
-    from: "{{ wg_iface_name }}"
-    to: "{{ ansible_facts['default_ipv4']['interface'] }}"
-
-- name: Enable/disable wg<-internet forwarding
-  when: with_ufw 
-  ufw:
-    rule: '{{ "allow" if is_gateway_ip4 or is_gateway_ip6 else "deny" }}'
-    route: yes
-    from: "{{ ansible_facts['default_ipv4']['interface'] }}"
-    to: "{{ wg_iface_name }}"
 

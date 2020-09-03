@@ -42,12 +42,6 @@ has_output_ip6: true
 with_sysd_netd: false
 with_wgquick: false
 
-# Basic UFW setup for packet forwarding and port opening is implemented. Set to
-# true to enable it. If you don't use it, set it to false and make sure you set
-# up your firewall in some other way. Or even better, contribute to this role
-# and add other firewall engines :)
-with_ufw: false
-
 # DNS for the interface. Default is null which doesn't set any, replace with a
 # string to set it. An implementation of resolvconf is required is wg-quick is
 # used (openresolv or systemd-resolved both work).

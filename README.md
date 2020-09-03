@@ -12,7 +12,7 @@ This role makes it easy to set up WireGuard on a number of machines.
 - Supports having one node as an internal router, to have devices without a
   static public endpoint communicate without any issues.
 - Additional hosts (not configured with Ansible) can be added to the network
-- Supports basic firewall configuration with UFW
+- <s>Supports basic firewall configuration with UFW</s> - Removed since I don't use UFW any more and the code was nasty anyway
 
 
 ## Usage
