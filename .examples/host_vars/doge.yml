@@ -90,6 +90,13 @@ wg:
   privkey: "{{ wg_privkeys['doge'] }}"  # key is in vault
   pubkey: "c3VjaCBwdWJsaWMga2V5LCB2ZXJ5IHdpcmVndWFyZAo="
 
+  # Inventory name of the machine that should be used as the gateway to the
+  # Internet.
+  # If set, that machine will have '0.0.0.0/0' or '::0/0' in AllowedIPs and
+  # a corresponding route set.
+  #gateway_ip4: 'enchilada'
+  #gateway_ip6: 'enchilada'
+
   # In case this machine is a WireGuard router it might be useful to add some
   # WireGuard peers here that are not configured with Ansible, such as
   # Android phones, Windows machines or OpenWRT routers (if you'd like to have
