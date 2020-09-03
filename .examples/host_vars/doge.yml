@@ -20,7 +20,7 @@ is_gateway_ip6: true
 # between machines that have no public addresses.
 #
 # In other words, let's say that you have, on different LANs:
-# 1. Machine with IPv4 and IPv6 public IPs
+# 1. Machine with IPv4 and IPv6 public endpoints 
 # 2. Machine with only IPv4
 # 3. Machine with only IPv6
 #
@@ -38,13 +38,22 @@ is_wg_router: true
 
 # Whether the machine is headless. Headless machines are expected to be always
 # on and always reachable for at least one protocol suite (IPv4/IPv6).
-# "Not headless" machines are not expected to be available. They will be set up
-# to never communicate directly but to always go through the wg router node.
+#
+# "Not headless" machines are not expected to be available. Communication to
+# headless machines uses their public endpoint if possible. When contacting
+# another non-headless machine, the router is used.
+#
+# You may want to set keepalive on all non-headless machines to ensure a handshake
+# with the router is always performed and that they're always available.
 headless: true
 
 # Whether this machine has connectivity for each protocol suite. For example
-# set `has_output_ip6` to false if it has no IPv6 connectivity. It is
-# advisable to set IPv6 to false on portable devices since not all Wi-Fi or
+# set `has_output_ip6` to false if it has no IPv6 connectivity.
+#
+# This will ensure that machines with incompatible protocol suites won't list
+# each other in the respective configs and that they use the router instead.
+#
+# It is advisable to set IPv6 to false on portable devices since not all Wi-Fi or
 # mobile networks have IPv6 connectivity, so that IPv6 is never expected by the
 # other nodes.
 has_output_ip4: true
@@ -52,7 +61,7 @@ has_output_ip6: true
 
 # WireGuard configuration file type (wg-quick or systemd-networkd). Exactly one
 # of them must be true but not both, or you will end up with conflicts since the
-# playbook will try to bring the interface up with both systems.
+# playbook will try to bring the interface up using both systems.
 # Setting both to false will effectively disable WireGuard since no config will
 # be generated, though public keys will still be distributed.
 with_sysd_netd: false
