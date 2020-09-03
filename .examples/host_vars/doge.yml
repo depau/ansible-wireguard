@@ -11,8 +11,8 @@ public_ip4: "12.34.56.78"
 public_ip6: "2001:dead:beef:1337:101::1"
 
 # Whether this machine can be used as a gateway to the Internet.
-# This requires extra configuration to enable packet forwarding, unless UFW is
-# used. It can be true only for one machine.
+# This requires extra configuration to enable packet forwarding.
+# It can be true only for one machine.
 is_gateway_ip4: true
 is_gateway_ip6: true
 
