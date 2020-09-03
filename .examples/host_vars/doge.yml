@@ -1,6 +1,9 @@
 ########
 ### Machine specific options
 
+# There should be a `host_vars` file for all machines, I'll create just one as
+# an example
+
 # Machine public IPv4 address, if available
 public_ip4: "12.34.56.78"
 
@@ -14,14 +17,24 @@ is_gateway_ip4: true
 is_gateway_ip6: true
 
 # Whether this machine can be used as a router to route WireGuard packets
-# between machines that have no public addresses. It must be true for exactly
-# one machine
+# between machines that have no public addresses.
+#
+# In other words, let's say that you have, on different LANs:
+# 1. Machine with IPv4 and IPv6 public IPs
+# 2. Machine with only IPv4
+# 3. Machine with only IPv6
+#
+# If you set this to true on machine 1, it will route traffic between 2 and 3,
+# so they can still talk.
+#
+# It can be true for exactly one machine, or false on all machines. If it is set
+# to true on multiple machines, the behavior is undefined.
 is_wg_router: true
 
 
 ########
 ### Most of the following options can be moved to the playbook or defined in the
-### inventory if you want to set the same value for multiple machines.
+### inventory if you want to set the same value for multiple/all machines.
 
 # Whether the machine is headless. Headless machines are expected to be always
 # on and always reachable for at least one protocol suite (IPv4/IPv6).
@@ -32,42 +45,48 @@ headless: true
 # Whether this machine has connectivity for each protocol suite. For example
 # set `has_output_ip6` to false if it has no IPv6 connectivity. It is
 # advisable to set IPv6 to false on portable devices since not all Wi-Fi or
-# mobile networks have IPv6 connectivity, so that it is never expected by the
+# mobile networks have IPv6 connectivity, so that IPv6 is never expected by the
 # other nodes.
 has_output_ip4: true
 has_output_ip6: true
 
 # WireGuard configuration file type (wg-quick or systemd-networkd). Exactly one
-# of them must be true but not both.
+# of them must be true but not both, or you will end up with conflicts since the
+# playbook will try to bring the interface up with both systems.
+# Setting both to false will effectively disable WireGuard since no config will
+# be generated, though public keys will still be distributed.
 with_sysd_netd: false
 with_wgquick: false
 
 # DNS for the interface. Default is null which doesn't set any, replace with a
 # string to set it. An implementation of resolvconf is required is wg-quick is
-# used (openresolv or systemd-resolved both work).
+# used (both openresolv and systemd-resolved work).
 #wg_dns: '1.1.1.1'
 
 
 ########
 ### Other configuration that is machine and WireGuard specific
 wg:
-  # IP addresses for the WireGuard interface. Global network address must also
-  # be set up accordingly.
+  # IP addresses for the WireGuard interface.
   ip4: "10.1.0.1"
   ip6: "fd00:1337::1"
 
   # Endpoint port (UDP) for WireGuard, required if the machine is headless.
+  # If not set, the config will not have an endpoint so the machine will have
+  # to start handshakes.
   #endpoint_port: 1194
 
   # Private and public keys. It is advisable to keep at least the private key
   # in an Ansible vault.
-  privkey: "{{ wg_privkeys['doge'] }}"
+  privkey: "{{ wg_privkeys['doge'] }}"  # key is in vault
   pubkey: "c3VjaCBwdWJsaWMga2V5LCB2ZXJ5IHdpcmVndWFyZAo="
 
   # In case this machine is a WireGuard router it might be useful to add some
   # WireGuard peers here that are not configured with Ansible, such as
-  # Android phones, Windows machines or OpenWRT routers. This will ensure
-  # they are reachable by passing through the router.
+  # Android phones, Windows machines or OpenWRT routers (if you'd like to have
+  # support for those too, please contribute!).
+  # This will ensure they are reachable by having the wg_router forward packets
+  # for them too.
   additional_peers:
     openwrt_router:
       allowed_ips: 10.1.1.0/24, fd00:1337::1:0/112
