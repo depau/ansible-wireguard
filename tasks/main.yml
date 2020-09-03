@@ -39,53 +39,50 @@
     proto: udp
     port: "{{ wg['endpoint_port'] }}"
 
-- name: Enable IPv4 forwarding
-  when: is_wg_router or is_gateway_ip4
+- name: Enable/disable IPv4 forwarding
   sysctl:
     name: net.ipv4.ip_forward
-    value: '1'
+    value: '{{ 1 if is_wg_router or is_gateway_ip4 else 0 }}'
     sysctl_set: yes
     state: present
     reload: yes
 
-- name: Enable IPv6 forwarding (default)
-  when: is_wg_router or is_gateway_ip6
+- name: Enable/disable IPv6 forwarding (default)
   sysctl:
     name: net.ipv6.conf.default.forwarding
-    value: '1'
+    value: '{{ 1 if is_wg_router or is_gateway_ip4 else 0 }}'
     sysctl_set: yes
     state: present
     reload: yes
 
-- name: Enable IPv6 forwarding (all)
-  when: is_wg_router or is_gateway_ip6
+- name: Enable/disable IPv6 forwarding (all)
   sysctl:
     name: net.ipv6.conf.all.forwarding
-    value: '1'
+    value: '{{ 1 if is_wg_router or is_gateway_ip4 else 0 }}'
     sysctl_set: yes
     state: present
     reload: yes
 
-- name: Enable wg<->wg forwarding
-  when: with_ufw and is_wg_router
+- name: Enable/disable wg<->wg forwarding
+  when: with_ufw
   ufw:
-    rule: allow
+    rule: '{{ "allow" if is_wg_router else "deny" }}'
     route: yes
     from: "{{ wg_iface_name }}"
     to: "{{ wg_iface_name }}"
 
-- name: Enable wg->internet forwarding
-  when: with_ufw and (is_gateway_ip4 or is_gateway_ip6)
+- name: Enable/disable wg->internet forwarding
+  when: with_ufw 
   ufw:
-    rule: allow
+    rule: '{{ "allow" if is_gateway_ip4 or is_gateway_ip6 else "deny" }}'
     route: yes
     from: "{{ wg_iface_name }}"
     to: "{{ ansible_facts['default_ipv4']['interface'] }}"
 
-- name: Enable wg<-internet forwarding
-  when: with_ufw and (is_gateway_ip4 or is_gateway_ip6)
+- name: Enable/disable wg<-internet forwarding
+  when: with_ufw 
   ufw:
-    rule: allow
+    rule: '{{ "allow" if is_gateway_ip4 or is_gateway_ip6 else "deny" }}'
     route: yes
     from: "{{ ansible_facts['default_ipv4']['interface'] }}"
     to: "{{ wg_iface_name }}"
