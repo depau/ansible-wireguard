@@ -38,6 +38,7 @@
     rule: allow
     proto: udp
     port: "{{ wg['endpoint_port'] }}"
+  ignore_errors: yes
 
 - name: Enable IPv4 forwarding
   when: is_wg_router or is_gateway_ip4 or wg.get("additional_peers", None)
@@ -73,6 +74,7 @@
     route: yes
     from: "{{ wg_iface_name }}"
     to: "{{ wg_iface_name }}"
+  ignore_errors: yes
 
 - name: Enable wg->internet forwarding
   when: with_ufw and (is_gateway_ip4 or is_gateway_ip6)
@@ -81,6 +83,7 @@
     route: yes
     from: "{{ wg_iface_name }}"
     to: "{{ ansible_facts['default_ipv4']['interface'] }}"
+  ignore_errors: yes
 
 - name: Enable wg<-internet forwarding
   when: with_ufw and (is_gateway_ip4 or is_gateway_ip6)
@@ -89,6 +92,7 @@
     route: yes
     from: "{{ ansible_facts['default_ipv4']['interface'] }}"
     to: "{{ wg_iface_name }}"
+  ignore_errors: yes
 
 - name: Forcefully trigger restart (systemd-networkd)
   when: with_sysd_netd
