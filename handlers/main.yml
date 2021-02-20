@@ -1,12 +1,17 @@
 - name: Restart systemd-networkd
-  when: headless
-  systemd:
-    name: systemd-networkd.service
-    scope: system
-    state: restarted
+  shell: |
+    (
+      sleep 0.3
+      ip link delete "{{ wg_iface_name }}"
+      sleep 0.3
+      systemctl restart systemd-networkd
+    ) &
+    wait
+  args:
+    executable: /bin/bash
+
 
 - name: "Enable and restart wg-quick@{{ wg_iface_name }}.service"
-  when: headless
   systemd:
     name: "wg-quick@{{ wg_iface_name }}.service"
     enabled: yes
