@@ -90,3 +90,21 @@
     from: "{{ ansible_facts['default_ipv4']['interface'] }}"
     to: "{{ wg_iface_name }}"
 
+- name: Forcefully trigger restart (systemd-networkd)
+  when: with_sysd_netd
+  notify: Restart systemd-networkd
+  shell: 'true'
+  changed_when: true
+  tags:
+    - never
+    - restart
+
+- name: Forcefully trigger restart (wg-quick)
+  when: with_wgquick
+  notify: "Enable and restart wg-quick@{{ wg_iface_name }}.service"
+  shell: 'true'
+  changed_when: true
+  tags:
+    - never
+    - restart
+
