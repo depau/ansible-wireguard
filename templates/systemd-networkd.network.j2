@@ -12,7 +12,10 @@ MTUBytes = {{ wg_mtu }}
 Address = {{ localhost['wg']['ip4'] }}{{ ip4_subnet }}
 Address = {{ localhost['wg']['ip6'] }}{{ ip6_subnet }}
 {% if wg_dns %}
-DNS = {{ wg_dns }}
+{% for dns in wg_dns.split(",") %}
+{% set dns = dns.strip() %}
+DNS = {{ dns }}
+{% endfor %}
 {% endif %}
 
 # WireGuard routes
