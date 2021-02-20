@@ -8,5 +8,12 @@
 {% if remotehost['is_gateway_ip6'] and localhost['wg'].get('gateway_ip6', None) == host %}
   {% set bogus = allowedips.append('::0/0') %}
 {% endif %}
+{% if remotehost['wg'].get('additional_peers', None) %}
+  {% for name, peer in remotehost['wg']['additional_peers'].items() %}
+    {% for addr in peer['allowed_ips'].split(",") %}
+      {% set bogus = allowedips.append(addr.strip()) %}
+    {% endfor %}
+  {% endfor %}
+{% endif %}
 {{ allowedips | join(', ') }}
 
