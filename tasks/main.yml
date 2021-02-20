@@ -40,6 +40,15 @@
     state: present
     reload: yes
 
+- name: Enable/disable IP forwarding ({{ wg_iface_name }} interface)
+  sysctl:
+    name: net.ipv4.conf.{{ wg_iface_name }}.forwarding
+    value: '{{ 1 if is_wg_router or is_gateway_ip4 or wg.get("additional_peers", None) else 0 }}'
+    sysctl_set: yes
+    state: present
+    reload: yes
+    ignoreerrors: yes
+
 - name: Enable/disable IPv6 forwarding (default)
   sysctl:
     name: net.ipv6.conf.default.forwarding
