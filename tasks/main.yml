@@ -32,27 +32,27 @@
     group: root
     mode: 0600
 
-#- name: Enable/disable IPv4 forwarding
-#  sysctl:
-#    name: net.ipv4.ip_forward
-#    value: '{{ 1 if is_wg_router or is_gateway_ip4 else 0 }}'
-#    sysctl_set: yes
-#    state: present
-#    reload: yes
-#
-#- name: Enable/disable IPv6 forwarding (default)
-#  sysctl:
-#    name: net.ipv6.conf.default.forwarding
-#    value: '{{ 1 if is_wg_router or is_gateway_ip4 else 0 }}'
-#    sysctl_set: yes
-#    state: present
-#    reload: yes
-#
-#- name: Enable/disable IPv6 forwarding (all)
-#  sysctl:
-#    name: net.ipv6.conf.all.forwarding
-#    value: '{{ 1 if is_wg_router or is_gateway_ip4 else 0 }}'
-#    sysctl_set: yes
-#    state: present
-#    reload: yes
+- name: Enable/disable IPv4 forwarding
+  sysctl:
+    name: net.ipv4.ip_forward
+    value: '{{ 1 if is_wg_router or is_gateway_ip4 else 0 }}'
+    sysctl_set: yes
+    state: present
+    reload: yes
+
+- name: Enable/disable IPv6 forwarding (default)
+  sysctl:
+    name: net.ipv6.conf.default.forwarding
+    value: '{{ 1 if is_wg_router or is_gateway_ip4 else 0 }}'
+    sysctl_set: yes
+    state: present
+    reload: yes
+
+- name: Enable/disable IPv6 forwarding (all)
+  sysctl:
+    name: net.ipv6.conf.all.forwarding
+    value: '{{ 1 if is_wg_router or is_gateway_ip4 else 0 }}'
+    sysctl_set: yes
+    state: present
+    reload: yes
 
