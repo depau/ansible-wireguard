@@ -57,6 +57,7 @@
     sysctl_set: yes
     state: present
     reload: yes
+  ignore_errors: yes
 
 - name: Enable/disable IPv6 forwarding (default)
   sysctl:
