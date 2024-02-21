@@ -2,79 +2,78 @@
 - name: Install WireGuard netdev for systemd-networkd
   when: with_sysd_netd
   notify: Restart systemd-networkd
-  template:
+  ansible.builtin.template:
     src: systemd-networkd.netdev.j2
     dest: "/etc/systemd/network/{{ wg_iface_name }}.netdev"
-    lstrip_blocks: yes
+    lstrip_blocks: true
     owner: systemd-network
     group: systemd-network
-    mode: 0600
+    mode: "0600"
 
 - name: Install WireGuard network for systemd-networkd
   when: with_sysd_netd
   notify: Restart systemd-networkd
-  template:
+  ansible.builtin.template:
     src: systemd-networkd.network.j2
     dest: "/etc/systemd/network/{{ wg_iface_name }}.network"
-    lstrip_blocks: yes
+    lstrip_blocks: true
     owner: systemd-network
     group: systemd-network
-    mode: 0600
+    mode: "0600"
 
 - name: Install WireGuard configs for wg-quick
   when: with_wgquick
   notify: "Enable and restart wg-quick@{{ wg_iface_name }}.service"
-  template:
+  ansible.builtin.template:
     src: wg-quick.conf.j2
     dest: "/etc/wireguard/{{ wg_iface_name }}.conf"
-    lstrip_blocks: yes
+    lstrip_blocks: true
     owner: root
     group: root
-    mode: 0600
+    mode: "0600"
 
 - name: Enable/disable IPv4 forwarding
-  sysctl:
+  ansible.posix.sysctl:
     name: net.ipv4.ip_forward
     value: '{{ 1 if is_wg_router or is_gateway_ip4 or wg.get("additional_peers", None) else 0 }}'
-    sysctl_set: yes
+    sysctl_set: true
     state: present
-    reload: yes
+    reload: true
 
-- name: Enable/disable IP forwarding ({{ wg_iface_name }} interface)
-  sysctl:
+- name: "Enable/disable IP forwarding: {{ wg_iface_name }}"
+  ansible.posix.sysctl:
     name: net.ipv4.conf.{{ wg_iface_name }}.forwarding
     value: '{{ 1 if is_wg_router or is_gateway_ip4 or wg.get("additional_peers", None) else 0 }}'
-    sysctl_set: yes
+    sysctl_set: true
     state: present
-    reload: yes
-    ignoreerrors: yes
-  ignore_errors: yes
+    reload: true
+    ignoreerrors: true
+  ignore_errors: true
 
 - name: Enable/disable IPv6 forwarding (default)
-  sysctl:
+  ansible.posix.sysctl:
     name: net.ipv6.conf.default.forwarding
     value: '{{ 1 if is_wg_router or is_gateway_ip4 or wg.get("additional_peers", None) else 0 }}'
-    sysctl_set: yes
+    sysctl_set: true
     state: present
-    reload: yes
-  ignore_errors: yes
+    reload: true
+  ignore_errors: true
 
 - name: Enable/disable IPv6 forwarding (default)
-  sysctl:
+  ansible.posix.sysctl:
     name: net.ipv6.conf.{{ wg_iface_name }}.forwarding
     value: '{{ 1 if is_wg_router or is_gateway_ip4 or wg.get("additional_peers", None) else 0 }}'
-    sysctl_set: yes
+    sysctl_set: true
     state: present
-    reload: yes
-    ignoreerrors: yes
-  ignore_errors: yes
+    reload: true
+    ignoreerrors: true
+  ignore_errors: true
 
 - name: Enable/disable IPv6 forwarding (all)
-  sysctl:
+  ansible.posix.sysctl:
     name: net.ipv6.conf.all.forwarding
     value: '{{ 1 if is_wg_router or is_gateway_ip4 or wg.get("additional_peers", None) else 0 }}'
-    sysctl_set: yes
+    sysctl_set: true
     state: present
-    reload: yes
-  ignore_errors: yes
-
+    reload: true
+  ignore_errors: true
