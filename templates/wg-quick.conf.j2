@@ -37,7 +37,7 @@ AllowedIPs = {% include 'allowed_ips.j2' %}
 {% if localhost['has_output_ip6'] and remotehost.get('public_ip6', None) %}
 Endpoint = [{{ remotehost['public_ip6'] }}]:{{ remotehost['wg']['endpoint_port'] }}
 {% elif remotehost.get('public_ip4', None) %}
-Endpoint = {{ remotehost['public_ip4'] }}:{{ remotehost['wg']['endpoint_port'] }}
+Endpoint = {{ remotehost['public_ip4'] | replace("@", "") }}:{{ remotehost['wg']['endpoint_port'] }}
 {% endif %}
 {% endif %}
 {%- if localhost['wg'].get('keepalive', None) %}
